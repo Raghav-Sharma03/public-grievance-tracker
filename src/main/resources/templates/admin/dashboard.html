@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Grievance Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <style>
+        body { background-color: #f0f2f5; }
+        .navbar { background: #1a73e8 !important; }
+        .stat-card {
+            border: none;
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+        .card-total    { background: #1a73e8; }
+        .card-pending  { background: #f9a825; }
+        .card-progress { background: #0288d1; }
+        .card-resolved { background: #2e7d32; }
+        .stat-number { font-size: 36px; font-weight: 700; }
+        .stat-label  { font-size: 14px; opacity: 0.9; }
+        .complaint-row { cursor: pointer; }
+        .complaint-row:hover { background: #f8f9fa; }
+        .badge-PENDING    { background: #f9a825; color: white; }
+        .badge-IN_PROGRESS { background: #0288d1; color: white; }
+        .badge-RESOLVED   { background: #2e7d32; color: white; }
+        .badge-REJECTED   { background: #c62828; color: white; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark navbar-expand-lg">
+    <div class="container">
+        <span class="navbar-brand fw-bold">Grievance Tracker — Admin</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-white"
+                  th:text="'Welcome, ' + ${admin.name}">Welcome</span>
+            <a href="/admin/users"
+               class="btn btn-outline-light btn-sm">View Users</a>
+            <a href="/logout"
+               class="btn btn-outline-light btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card card-total">
+                <div class="stat-number" th:text="${total}">0</div>
+                <div class="stat-label">Total Complaints</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card card-pending">
+                <div class="stat-number" th:text="${pending}">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card card-progress">
+                <div class="stat-number" th:text="${inProgress}">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card card-resolved">
+                <div class="stat-number" th:text="${resolved}">0</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaints Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 pt-3">
+            <h5 class="mb-0">All Complaints</h5>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(complaints)}"
+                 class="text-center py-5 text-muted">
+                No complaints submitted yet.
+            </div>
+            <table th:if="${!#lists.isEmpty(complaints)}"
+                   class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Citizen</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="complaint : ${complaints}"
+                        class="complaint-row">
+                        <td th:text="${complaint.id}"></td>
+                        <td th:text="${complaint.title}"></td>
+                        <td th:text="${complaint.category}"></td>
+                        <td th:text="${complaint.citizen.name}"></td>
+                        <td th:text="${complaint.location}"></td>
+                        <td>
+                            <span class="badge rounded-pill px-2 py-1"
+                                  th:classappend="'badge-' + ${complaint.status.name()}"
+                                  th:text="${complaint.status}">
+                            </span>
+                        </td>
+                        <td th:text="${#temporals.format(complaint.createdAt,
+                                      'dd MMM yyyy')}"></td>
+                        <td>
+                            <a th:href="@{/admin/complaint/{id}(id=${complaint.id})}"
+                               class="btn btn-primary btn-sm">Manage</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+</script>
+</body>
+</html>

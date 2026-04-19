@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Complaint - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <style>
+        body { background-color: #f0f2f5; }
+        .navbar { background: #1a73e8 !important; }
+        .detail-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .badge-PENDING    { background: #f9a825; color: white; }
+        .badge-IN_PROGRESS { background: #0288d1; color: white; }
+        .badge-RESOLVED   { background: #2e7d32; color: white; }
+        .badge-REJECTED   { background: #c62828; color: white; }
+        .comment-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border-left: 3px solid #1a73e8;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark">
+    <div class="container">
+        <span class="navbar-brand fw-bold">Grievance Tracker — Admin</span>
+        <a href="/admin/dashboard"
+           class="btn btn-outline-light btn-sm">Back to Dashboard</a>
+    </div>
+</nav>
+
+<div class="container mt-4" style="max-width: 800px;">
+
+    <input type="hidden" id="complaintIdHolder" th:value="${complaint.id}">
+
+    <!-- Success messages -->
+    <div th:if="${param.updated}"
+         class="alert alert-success">Status updated successfully!</div>
+    <div th:if="${param.commented}"
+         class="alert alert-success">Remark added successfully!</div>
+
+    <!-- Complaint Details -->
+    <div class="card detail-card mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h4 th:text="${complaint.title}">Title</h4>
+                    <span class="badge rounded-pill px-3 py-2"
+                          th:classappend="'badge-' + ${complaint.status.name()}"
+                          th:text="${complaint.status}">Status</span>
+                </div>
+                <small class="text-muted"
+                       th:text="${#temporals.format(complaint.createdAt,
+                                 'dd MMM yyyy')}"></small>
+            </div>
+
+            <hr>
+
+            <div class="row mb-3">
+                <div class="col-sm-6">
+                    <p><strong>Citizen:</strong>
+                        <span th:text="${complaint.citizen.name}"></span></p>
+                    <p><strong>Email:</strong>
+                        <span th:text="${complaint.citizen.email}"></span></p>
+                </div>
+                <div class="col-sm-6">
+                    <p><strong>Category:</strong>
+                        <span th:text="${complaint.category}"></span></p>
+                    <p><strong>Location:</strong>
+                        <span th:text="${complaint.location}"></span></p>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <strong>Description:</strong>
+                <p class="text-muted mt-1"
+                   th:text="${complaint.description}"></p>
+            </div>
+
+            <!-- Image -->
+            <div th:if="${complaint.imagePath != null}" class="mb-3">
+                <strong>Attached Image:</strong><br>
+                <img th:src="'/' + ${complaint.imagePath}"
+                     class="img-fluid rounded mt-2"
+                     style="max-height: 300px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Status -->
+    <div class="card detail-card mb-4">
+        <div class="card-body p-4">
+            <h5 class="mb-3">Update Status</h5>
+            <div class="d-flex gap-2 flex-wrap">
+                <button onclick="updateStatus('PENDING')"
+                        class="btn btn-warning text-white">
+                    Mark Pending
+                </button>
+                <button onclick="updateStatus('IN_PROGRESS')"
+                        class="btn btn-info text-white">
+                    Mark In Progress
+                </button>
+                <button onclick="updateStatus('RESOLVED')"
+                        class="btn btn-success">
+                    Mark Resolved
+                </button>
+                <button onclick="updateStatus('REJECTED')"
+                        class="btn btn-danger">
+                    Mark Rejected
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Remark -->
+    <div class="card detail-card mb-4">
+        <div class="card-body p-4">
+            <h5 class="mb-3">Add Remark</h5>
+            <textarea id="remarkText" class="form-control mb-3"
+                      rows="3"
+                      placeholder="Write your remark or update for the citizen...">
+            </textarea>
+            <button onclick="submitRemark()"
+                    class="btn btn-primary">Add Remark</button>
+        </div>
+    </div>
+
+    <!-- Previous Comments -->
+    <div class="card detail-card mb-4">
+        <div class="card-body p-4">
+            <h5 class="mb-3">Previous Remarks</h5>
+            <div th:if="${#lists.isEmpty(comments)}"
+                 class="text-muted">No remarks added yet.</div>
+            <div th:each="comment : ${comments}" class="comment-box">
+                <div class="d-flex justify-content-between">
+                    <strong th:text="${comment.author.name}">Officer</strong>
+                    <small class="text-muted"
+                           th:text="${#temporals.format(comment.createdAt,
+                                     'dd MMM yyyy, hh:mm a')}"></small>
+                </div>
+                <p class="mb-0 mt-1"
+                   th:text="${comment.content}"></p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const complaintId = document.getElementById('complaintIdHolder').value;
+
+    function updateStatus(status) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/complaint/' + complaintId + '/status';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'status';
+        input.value = status;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function submitRemark() {
+        const content = document.getElementById('remarkText').value.trim();
+        if (!content) {
+            alert('Please write a remark first.');
+            return;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/complaint/' + complaintId + '/comment';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'content';
+        input.value = content;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+</script>
+</body>
+</html>

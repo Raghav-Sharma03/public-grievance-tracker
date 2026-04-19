@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Complaint Detail - Grievance Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <style>
+        body { background-color: #f0f2f5; }
+        .navbar { background: #1a73e8 !important; }
+        .detail-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .badge-pending  { background: #f9a825; color: white; }
+        .badge-progress { background: #0288d1; color: white; }
+        .badge-resolved { background: #2e7d32; color: white; }
+        .badge-rejected { background: #c62828; color: white; }
+        .comment-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark">
+    <div class="container">
+        <span class="navbar-brand fw-bold">Grievance Tracker</span>
+        <a href="/citizen/dashboard" class="btn btn-outline-light btn-sm">
+            Back to Dashboard
+        </a>
+    </div>
+</nav>
+
+<div class="container mt-4" style="max-width: 750px;">
+    <div class="card detail-card">
+        <div class="card-body p-4">
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h4 th:text="${complaint.title}">Title</h4>
+                    <span class="badge rounded-pill px-3 py-2"
+                          th:classappend="${complaint.status.name() == 'PENDING'} ? 'badge-pending' :
+                                          (${complaint.status.name() == 'IN_PROGRESS'} ? 'badge-progress' :
+                                          (${complaint.status.name() == 'RESOLVED'} ? 'badge-resolved' : 'badge-rejected'))"
+                          th:text="${complaint.status}">Status</span>
+                </div>
+                <small class="text-muted"
+                       th:text="${#temporals.format(complaint.createdAt, 'dd MMM yyyy')}">
+                </small>
+            </div>
+
+            <hr>
+
+            <!-- Details -->
+            <div class="row mb-3">
+                <div class="col-sm-6">
+                    <p class="mb-1">
+                        <strong>Category:</strong>
+                        <span th:text="${complaint.category}"></span>
+                    </p>
+                    <p class="mb-1">
+                        <strong>Location:</strong>
+                        <span th:text="${complaint.location}"></span>
+                    </p>
+                </div>
+                <div class="col-sm-6">
+                    <p class="mb-1">
+                        <strong>Submitted on:</strong>
+                        <span th:text="${#temporals.format(complaint.createdAt,
+                                        'dd MMM yyyy, hh:mm a')}"></span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <strong>Description:</strong>
+                <p class="mt-2 text-muted" th:text="${complaint.description}"></p>
+            </div>
+
+            <!-- Image if exists -->
+            <div th:if="${complaint.imagePath != null}" class="mb-4">
+                <strong>Attached Image:</strong><br>
+                <img th:src="'/' + ${complaint.imagePath}"
+                     class="img-fluid rounded mt-2"
+                     style="max-height: 300px;">
+            </div>
+
+            <hr>
+
+            <!-- Comments/Remarks from officers -->
+            <h5 class="mb-3">Officer Remarks</h5>
+            <div th:if="${#lists.isEmpty(comments)}"
+                 class="text-muted">No remarks yet.</div>
+            <div th:each="comment : ${comments}" class="comment-box">
+                <div class="d-flex justify-content-between">
+                    <strong th:text="${comment.author.name}">Officer</strong>
+                    <small class="text-muted"
+                           th:text="${#temporals.format(comment.createdAt,
+                                     'dd MMM yyyy')}"></small>
+                </div>
+                <p class="mb-0 mt-1" th:text="${comment.content}"></p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+</script>
+</body>
+</html>
