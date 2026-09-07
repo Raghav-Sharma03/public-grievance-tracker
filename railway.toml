@@ -1,0 +1,10 @@
+[build]
+builder = "RAILPACK"
+buildCommand = "./mvnw clean package -DskipTests"
+
+[deploy]
+startCommand = "java -Xmx256m -jar target/grievance-tracker-0.0.1-SNAPSHOT.jar"
+healthcheckPath = "/login"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

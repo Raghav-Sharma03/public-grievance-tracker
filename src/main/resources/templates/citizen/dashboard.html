@@ -47,7 +47,9 @@
                   th:text="'Welcome, ' + ${citizen.name}">Welcome</span>
             <a href="/citizen/submit-complaint"
                class="btn btn-light btn-sm">+ New Complaint</a>
-            <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+            </form>
         </div>
     </div>
 </nav>

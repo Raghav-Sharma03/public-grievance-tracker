@@ -41,8 +41,9 @@
                   th:text="'Welcome, ' + ${admin.name}">Welcome</span>
             <a href="/admin/users"
                class="btn btn-outline-light btn-sm">View Users</a>
-            <a href="/logout"
-               class="btn btn-outline-light btn-sm">Logout</a>
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+            </form>
         </div>
     </div>
 </nav>
