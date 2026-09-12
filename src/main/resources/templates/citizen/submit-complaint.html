@@ -38,8 +38,9 @@
         </div>
         <div class="card-body px-4 pb-4">
 
-            <div id="errorMsg" class="alert alert-danger"
-                 style="display:none;"></div>
+<div id="errorMsg" class="alert alert-danger"
+     th:classappend="${errorMessage} ? '' : ' d-none'"
+     th:text="${errorMessage} ?: ''"></div>
 
             <div class="mb-3">
                 <label class="form-label fw-semibold">Complaint Title</label>

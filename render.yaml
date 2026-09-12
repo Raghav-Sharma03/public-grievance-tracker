@@ -5,12 +5,16 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    healthCheckPath: /register
-    autoDeploy: true
+    healthCheckPath: /actuator/health
+    autoDeploy: false
     envVars:
       - key: DATABASE_URL
         sync: false
       - key: DB_USERNAME
         sync: false
       - key: DB_PASSWORD
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
         sync: false

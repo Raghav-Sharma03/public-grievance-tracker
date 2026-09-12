@@ -46,8 +46,9 @@
         </div>
         <div class="card-body p-4">
 
-            <div id="errorMsg" class="alert alert-danger"
-                 style="display:none;"></div>
+<div id="errorMsg" class="alert alert-danger"
+     th:classappend="${errorMessage} ? '' : ' d-none'"
+     th:text="${errorMessage} ?: ''"></div>
 
             <div class="mb-3">
                 <label class="form-label">Full Name</label>
@@ -121,7 +122,7 @@
         form.appendChild(csrfInput);
         document.body.appendChild(form);
 
-        console.log('Submitting POST to /register...');
+        
         form.submit();
     }
 
