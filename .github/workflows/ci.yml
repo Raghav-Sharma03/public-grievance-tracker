@@ -26,6 +26,12 @@ jobs:
         run: ./mvnw clean compile -q
 
       - name: Run tests
+        env:
+          ADMIN_EMAIL: admin@test.com
+          ADMIN_PASSWORD: testpassword123
+          DATABASE_URL: jdbc:h2:mem:testdb
+          DB_USERNAME: sa
+          DB_PASSWORD: ""
         run: ./mvnw test
 
       - name: Package application
