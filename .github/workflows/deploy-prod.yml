@@ -1,0 +1,30 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for deployment'
+        required: true
+        default: 'Manual production deployment'
+      confirmed:
+        description: 'Type CONFIRM to deploy to production'
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy to Production Environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirmed }}" != "CONFIRM" ]; then
+            echo "Deployment cancelled - you must type CONFIRM to deploy to production"
+            exit 1
+          fi
+
+      - name: Trigger Render Production Deploy
+        run: |
+          curl -X POST "${{ secrets.RENDER_PROD_DEPLOY_HOOK }}"
+          echo "Production deployment triggered successfully"

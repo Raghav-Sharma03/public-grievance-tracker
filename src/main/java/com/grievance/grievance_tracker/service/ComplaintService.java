@@ -55,10 +55,25 @@ public class ComplaintService {
         }
 
         // Give the file a unique name to avoid conflicts
-        String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-        Path filePath = uploadPath.resolve(fileName);
+        String originalName = Paths.get(imageFile.getOriginalFilename()).getFileName().toString();
+        String extension = originalName.contains(".")
+        ? originalName.substring(originalName.lastIndexOf(".")).toLowerCase()
+        : "";
+
+        List<String> allowedExtensions = List.of(".jpg", ".jpeg", ".png", ".gif", ".webp");
+        if (!allowedExtensions.contains(extension)) {
+            throw new IllegalArgumentException("Invalid file type. Only images are allowed.");
+        }
+
+        String fileName = UUID.randomUUID() + extension;
+        Path filePath = uploadPath.resolve(fileName).normalize();
+
+        if (!filePath.startsWith(uploadPath.normalize())) {
+            throw new SecurityException("Invalid file path detected.");
+        }
+
         Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-        
+
         return uploadDir + fileName;
     }
 
