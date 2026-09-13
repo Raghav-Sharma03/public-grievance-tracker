@@ -24,4 +24,4 @@ USER 10001:10001
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-Xmx256m", "-jar", "/app/grievance-tracker.jar"]
+ENTRYPOINT ["java", "-Xmx256m", "-Xms64m", "-XX:TieredStopAtLevel=1", "-jar", "/app/grievance-tracker.jar"]
