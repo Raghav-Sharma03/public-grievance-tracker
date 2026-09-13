@@ -83,6 +83,29 @@
         <div class="card-header bg-white border-0 pt-3">
             <h5 class="mb-0">All Complaints</h5>
         </div>
+        <form th:action="@{/admin/dashboard}" method="get"
+              class="row g-2 align-items-end p-3 border-bottom">
+            <div class="col-md-6">
+                <label for="search" class="form-label">Search</label>
+                <input type="text" id="search" name="search" class="form-control"
+                       placeholder="Title, category, or citizen"
+                       th:value="${search}">
+            </div>
+            <div class="col-md-3">
+                <label for="statusFilter" class="form-label">Status</label>
+                <select id="statusFilter" name="statusFilter" class="form-select">
+                    <option value="" th:selected="${#strings.isEmpty(statusFilter)}">All</option>
+                    <option value="PENDING" th:selected="${statusFilter == 'PENDING'}">Pending</option>
+                    <option value="IN_PROGRESS" th:selected="${statusFilter == 'IN_PROGRESS'}">In Progress</option>
+                    <option value="RESOLVED" th:selected="${statusFilter == 'RESOLVED'}">Resolved</option>
+                    <option value="REJECTED" th:selected="${statusFilter == 'REJECTED'}">Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a href="/admin/dashboard" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
         <div class="card-body p-0">
             <div th:if="${#lists.isEmpty(complaints)}"
                  class="text-center py-5 text-muted">
@@ -136,7 +159,7 @@
                 <ul class="pagination justify-content-center mb-0">
                     <li class="page-item" th:classappend="${!hasPrevious} ? 'disabled'">
                         <a class="page-link"
-                           th:href="@{/admin/dashboard(page=${currentPage - 1})}">
+                           th:href="@{/admin/dashboard(page=${currentPage - 1},search=${search},statusFilter=${statusFilter})}">
                             Previous
                         </a>
                     </li>
@@ -144,12 +167,12 @@
                         th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                         th:classappend="${i == currentPage} ? 'active'">
                         <a class="page-link"
-                           th:href="@{/admin/dashboard(page=${i})}"
+                           th:href="@{/admin/dashboard(page=${i},search=${search},statusFilter=${statusFilter})}"
                            th:text="${i + 1}">1</a>
                     </li>
                     <li class="page-item" th:classappend="${!hasNext} ? 'disabled'">
                         <a class="page-link"
-                           th:href="@{/admin/dashboard(page=${currentPage + 1})}">
+                           th:href="@{/admin/dashboard(page=${currentPage + 1},search=${search},statusFilter=${statusFilter})}">
                             Next
                         </a>
                     </li>

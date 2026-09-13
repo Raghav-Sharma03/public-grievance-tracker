@@ -62,6 +62,11 @@
         Complaint submitted successfully!
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+    <div th:if="${param.cancelled}"
+         class="alert alert-success alert-dismissible">
+        Your complaint has been cancelled successfully.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 
     <!-- Stats Cards -->
     <div class="row g-3 mb-4">

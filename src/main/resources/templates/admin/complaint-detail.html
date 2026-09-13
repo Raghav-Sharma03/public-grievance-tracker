@@ -159,6 +159,29 @@
         </div>
     </div>
 
+    <!-- Status History -->
+    <div class="card detail-card mb-4">
+        <div class="card-body p-4">
+            <h5 class="mb-3">Status History</h5>
+            <div th:if="${#lists.isEmpty(statusHistory)}"
+                 class="text-muted">No status changes recorded yet.</div>
+            <div th:each="history : ${statusHistory}"
+                 class="border-start border-primary border-3 ps-3 mb-3">
+                <div>
+                    <strong th:text="${history.changedBy.name}">Admin</strong>
+                    changed status from
+                    <strong th:text="${#strings.capitalize(#strings.toLowerCase(#strings.replace(history.oldStatus.name(), '_', ' ')))}">Pending</strong>
+                    to
+                    <strong th:text="${#strings.capitalize(#strings.toLowerCase(#strings.replace(history.newStatus.name(), '_', ' ')))}">In progress</strong>
+                </div>
+                <small class="text-muted"
+                       th:text="${#temporals.format(history.changedAt, 'dd MMM yyyy, hh:mm a')}"></small>
+                <p th:if="${history.remarks != null}"
+                   class="mb-0 mt-1" th:text="${history.remarks}"></p>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
