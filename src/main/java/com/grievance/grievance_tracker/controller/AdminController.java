@@ -40,13 +40,17 @@ public class AdminController {
 @GetMapping("/dashboard")
 public String dashboard(
         @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "") String search,
+        @RequestParam(defaultValue = "") String statusFilter,
         Authentication auth,
         Model model) {
     User admin = getLoggedInUser(auth);
-    Page<Complaint> complaintPage = complaintService.getAllComplaints(page);
+    Page<Complaint> complaintPage = complaintService.searchComplaints(search, statusFilter, page);
 
     model.addAttribute("admin", admin);
     model.addAttribute("complaints", complaintPage.getContent());
+    model.addAttribute("search", search);
+    model.addAttribute("statusFilter", statusFilter);
     model.addAttribute("currentPage", page);
     model.addAttribute("totalPages", complaintPage.getTotalPages());
     model.addAttribute("hasNext", complaintPage.hasNext());
@@ -72,6 +76,7 @@ public String dashboard(
         model.addAttribute("complaint", complaint);
         model.addAttribute("comments", comments);
         model.addAttribute("statuses", ComplaintStatus.values());
+        model.addAttribute("statusHistory", complaintService.getStatusHistory(id));
 
         return "admin/complaint-detail";
     }
@@ -79,9 +84,10 @@ public String dashboard(
     // Update complaint status
     @PostMapping("/complaint/{id}/status")
     public String updateStatus(@PathVariable Long id,
-                               @RequestParam("status") String status) {
+                               @RequestParam("status") String status,
+                               Authentication auth) {
         ComplaintStatus newStatus = ComplaintStatus.valueOf(status);
-        complaintService.updateStatus(id, newStatus);
+        complaintService.updateStatus(id, newStatus, getLoggedInUser(auth));
         return "redirect:/admin/complaint/" + id + "?updated=true";
     }
 
@@ -101,8 +107,13 @@ public String dashboard(
 
     // View all users
     @GetMapping("/users")
-    public String viewUsers(Model model) {
-        model.addAttribute("users", userService.getAllUsers());
+    public String viewUsers(@RequestParam(defaultValue = "0") int page, Model model) {
+        Page<User> userPage = userService.getAllUsersPaginated(page);
+        model.addAttribute("users", userPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", userPage.getTotalPages());
+        model.addAttribute("hasNext", userPage.hasNext());
+        model.addAttribute("hasPrevious", userPage.hasPrevious());
         return "admin/users";
     }
 }

@@ -135,4 +135,15 @@ public String dashboard(
         model.addAttribute("comments", comments);
         return "citizen/complaint-detail";
     }
+
+    @PostMapping("/complaint/{id}/cancel")
+    public String cancelComplaint(@PathVariable Long id, Authentication auth) {
+        User citizen = getLoggedInUser(auth);
+        try {
+            complaintService.cancelComplaint(id, citizen);
+            return "redirect:/citizen/dashboard?cancelled=true";
+        } catch (IllegalArgumentException e) {
+            return "redirect:/citizen/complaint/" + id + "?error=true";
+        }
+    }
 }

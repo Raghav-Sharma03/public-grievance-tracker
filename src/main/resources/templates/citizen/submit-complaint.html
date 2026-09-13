@@ -79,6 +79,11 @@
                 </label>
                 <input type="file" id="imageFile" class="form-control"
                        accept="image/*">
+                <div id="imagePreviewContainer" class="d-none mt-3">
+                    <img id="imagePreview" class="img-fluid rounded"
+                         style="max-width: 300px;" alt="Selected complaint image preview">
+                    <div id="imageInfo" class="small text-muted mt-2"></div>
+                </div>
             </div>
 
             <button type="button" id="submitComplaintButton" class="btn btn-primary w-100 py-2"
@@ -90,6 +95,33 @@
 </div>
 
 <script>
+const imageFileInput = document.getElementById('imageFile');
+const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+const imagePreview = document.getElementById('imagePreview');
+const imageInfo = document.getElementById('imageInfo');
+
+imageFileInput.addEventListener('change', function() {
+    const file = imageFileInput.files[0];
+    if (!file) {
+        imagePreviewContainer.classList.add('d-none');
+        imagePreview.removeAttribute('src');
+        imageInfo.textContent = '';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        imagePreview.onload = function() {
+            const sizeInKb = (file.size / 1024).toFixed(1);
+            imageInfo.textContent = imagePreview.naturalWidth + ' × '
+                    + imagePreview.naturalHeight + ' px · ' + sizeInKb + ' KB';
+            imagePreviewContainer.classList.remove('d-none');
+        };
+        imagePreview.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
 function submitComplaint() {
     const submitButton = document.getElementById('submitComplaintButton');
     submitButton.disabled = true;

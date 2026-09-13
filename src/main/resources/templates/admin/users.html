@@ -57,6 +57,28 @@
                 </table>
             </div>
         </div>
+        <div class="card-footer bg-white border-0 py-3"
+             th:if="${totalPages > 1}">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item" th:classappend="${!hasPrevious} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/users(page=${currentPage - 1})}">Previous</a>
+                    </li>
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/admin/users(page=${i})}"
+                           th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${!hasNext} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/users(page=${currentPage + 1})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
 

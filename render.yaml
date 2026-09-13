@@ -8,6 +8,7 @@ services:
     healthCheckPath: /actuator/health
     autoDeploy: false
     startCommand: java -Xmx256m -Xms128m -jar /app/grievance-tracker.jar
+    # Production image storage should use a persistent disk with UPLOAD_DIR set to its mount path.
     envVars:
       - key: DATABASE_URL
         sync: false
