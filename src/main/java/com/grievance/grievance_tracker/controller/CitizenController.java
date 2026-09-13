@@ -2,6 +2,7 @@ package com.grievance.grievance_tracker.controller;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.data.domain.Page;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import com.grievance.grievance_tracker.model.User;
 import com.grievance.grievance_tracker.service.ComplaintService;
 import com.grievance.grievance_tracker.service.UserService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @Controller
@@ -80,12 +82,14 @@ public String dashboard(
             BindingResult bindingResult,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
             Authentication auth,
-            Model model) {
+            Model model,
+            HttpServletResponse response) {
 
         if (bindingResult.hasErrors()) {
             String errorMessage = bindingResult.getAllErrors()
                     .get(0).getDefaultMessage();
             model.addAttribute("errorMessage", errorMessage);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return "citizen/submit-complaint";
         }
 
@@ -103,10 +107,12 @@ public String dashboard(
 
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return "citizen/submit-complaint";
 
         } catch (IOException e) {
             model.addAttribute("errorMessage", "File upload failed. Please try again.");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return "citizen/submit-complaint";
         }
     }
@@ -118,7 +124,7 @@ public String dashboard(
         User citizen = getLoggedInUser(auth);
 
         Complaint complaint = complaintService.getComplaintById(id)
-                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+                .orElseThrow(() -> new NoSuchElementException("Complaint not found"));
 
         if (!complaint.getCitizen().getId().equals(citizen.getId())) {
             return "redirect:/citizen/dashboard";

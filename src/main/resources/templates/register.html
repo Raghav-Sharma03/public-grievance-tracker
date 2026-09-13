@@ -50,6 +50,7 @@
      th:classappend="${errorMessage} ? '' : ' d-none'"
      th:text="${errorMessage} ?: ''"></div>
 
+            <form id="registerForm">
             <div class="mb-3">
                 <label class="form-label">Full Name</label>
                 <input type="text" id="name" class="form-control"
@@ -63,10 +64,10 @@
             <div class="mb-3">
                 <label class="form-label">Password</label>
                 <input type="password" id="password" class="form-control"
-                       placeholder="Minimum 6 characters">
+                       placeholder="Minimum 8 characters">
             </div>
-            <button type="button" class="btn btn-register"
-                    onclick="submitRegister()">Create Account</button>
+            <button type="submit" id="registerButton" class="btn btn-register">Create Account</button>
+            </form>
 
             <hr>
             <p class="text-center mb-0">
@@ -78,6 +79,11 @@
 </div>
 
 <script>
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        submitRegister();
+    });
+
     function submitRegister() {
         const name = document.getElementById('name').value.trim();
         const email = document.getElementById('email').value.trim();
@@ -87,10 +93,13 @@
             showError('Please fill all fields.');
             return;
         }
-        if (password.length < 6) {
-            showError('Password must be at least 6 characters.');
+        if (password.length < 8) {
+            showError('Password must be at least 8 characters.');
             return;
         }
+
+        const registerButton = document.getElementById('registerButton');
+        registerButton.disabled = true;
 
         const form = document.createElement('form');
         form.method = 'POST';

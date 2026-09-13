@@ -3,6 +3,8 @@ package com.grievance.grievance_tracker.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,7 +28,23 @@ public class HomeController {
     private UserService userService;
 
     @GetMapping("/")
-    public String home() {
+    public String home(Authentication authentication) {
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            boolean isAdminOrOfficer = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")
+                            || authority.getAuthority().equals("ROLE_OFFICER"));
+            if (isAdminOrOfficer) {
+                return "redirect:/admin/dashboard";
+            }
+
+            boolean isCitizen = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_CITIZEN"));
+            if (isCitizen) {
+                return "redirect:/citizen/dashboard";
+            }
+        }
         return "redirect:/login";
     }
 

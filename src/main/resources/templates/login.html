@@ -70,8 +70,7 @@
                     <input type="password" id="password" class="form-control"
                            placeholder="Enter your password" required>
                 </div>
-                <button type="button" class="btn btn-login"
-                        onclick="submitLogin()">Login</button>
+                <button type="submit" id="loginButton" class="btn btn-login">Login</button>
             </form>
 
             <hr>
@@ -96,6 +95,11 @@
         document.getElementById('logoutMsg').style.display = 'block';
     }
 
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        submitLogin();
+    });
+
     function submitLogin() {
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
@@ -106,15 +110,20 @@
             return;
         }
 
+        const loginButton = document.getElementById('loginButton');
+        loginButton.disabled = true;
+
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '/login';
 
         const emailInput = document.createElement('input');
+        emailInput.type = 'hidden';
         emailInput.name = 'email';
         emailInput.value = email;
 
         const passwordInput = document.createElement('input');
+        passwordInput.type = 'hidden';
         passwordInput.name = 'password';
         passwordInput.value = password;
 
