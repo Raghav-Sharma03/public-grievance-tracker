@@ -1,194 +1,100 @@
-# Public Grievance Tracker — Complaint Resolution System
+# Public Grievance Tracker
 
-A full-stack complaint management system built with **Java · Spring Boot · Spring Security · MySQL · Thymeleaf**.  
-Citizens can submit and track complaints. Admins assign and resolve them. Every route is secured by role.
-
----
-
-## The Problem It Solves
-
-Most public grievance portals are black holes — you submit a complaint and never know what happens next.  
-This system gives **citizens real-time visibility** into their complaint status, and gives **admins a structured workflow** to assign, act on, and resolve issues — with every action tracked.
-
----
+A production-grade complaint management portal built with Spring Boot 4, Thymeleaf, MySQL, and deployed on Render.
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Backend | Java 17, Spring Boot, Spring MVC |
-| Security | Spring Security (RBAC) |
-| ORM | Spring Data JPA + Hibernate |
-| Database | MySQL |
-| Frontend | Thymeleaf (server-side rendering) |
-| Build Tool | Maven |
+- Backend: Java 21, Spring Boot 4.0.8, Spring MVC, Spring Security
+- Frontend: Thymeleaf, Bootstrap 5.3.3
+- Database: MySQL 8 (Aiven Cloud), Flyway migrations
+- Deployment: Docker, Render (dev + production environments)
+- CI/CD: GitHub Actions (automated build, test, deploy)
 
----
+## Roles
 
-## Architecture
+- CITIZEN: Register, submit complaints, track status, cancel pending complaints
+- ADMIN: Manage all complaints, update status, add remarks, view all users
+- OFFICER: Same as ADMIN
 
-```
-Browser (Thymeleaf Views)
-        ↓
-Spring MVC Controllers  ←──  Spring Security (Auth + Role Guard)
-        ↓
-Service Layer (Business Logic)
-        ↓
-Repository Layer (Spring Data JPA)
-        ↓
-MySQL Database
-```
-
----
-
-## Role-Based Access Control
-
-Two roles, completely separated at the controller level:
-
-| Action | Citizen | Admin |
-|---|---|---|
-| Register / Login | ✅ | ✅ |
-| Submit complaint | ✅ | ❌ |
-| Track own complaints | ✅ | ❌ |
-| View all complaints | ❌ | ✅ |
-| Assign complaint to self | ❌ | ✅ |
-| Resolve / close complaint | ❌ | ✅ |
-
-Unauthorized route access is blocked at the controller level using Spring Security's method-level and URL-level authorization — not just hidden on the UI.
-
----
-
-## Complaint Lifecycle
-
-```
-[Citizen Submits]
-       ↓
-   PENDING
-       ↓
-[Admin Assigns to self]
-       ↓
-   IN_PROGRESS
-       ↓
-[Admin Resolves]
-       ↓
-   RESOLVED
-```
-
-Citizens can track their complaint status at any point in this lifecycle.
-
----
-
-## Database Schema (Normalized)
-
-### Users
-| Column | Type | Notes |
-|---|---|---|
-| id | BIGINT | PK, auto-increment |
-| name | VARCHAR | |
-| email | VARCHAR | unique |
-| password | VARCHAR | BCrypt hashed |
-| role | ENUM | CITIZEN / ADMIN |
-
-### Complaints
-| Column | Type | Notes |
-|---|---|---|
-| id | BIGINT | PK, auto-increment |
-| title | VARCHAR | |
-| description | TEXT | |
-| status | ENUM | PENDING / IN_PROGRESS / RESOLVED |
-| created_at | TIMESTAMP | |
-| citizen_id | BIGINT | FK → Users |
-| assigned_admin_id | BIGINT | FK → Users (nullable) |
-
----
-
-## API Endpoints
-
-### Auth
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| GET | `/register` | Public | Registration page |
-| POST | `/register` | Public | Create account |
-| GET | `/login` | Public | Login page |
-| POST | `/login` | Public | Authenticate |
+## Features
 
 ### Citizen
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| GET | `/citizen/dashboard` | CITIZEN | View own complaints |
-| GET | `/citizen/complaint/new` | CITIZEN | Submit complaint form |
-| POST | `/citizen/complaint/submit` | CITIZEN | Submit complaint |
-| GET | `/citizen/complaint/{id}` | CITIZEN | Track complaint status |
 
-### Admin
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| GET | `/admin/dashboard` | ADMIN | View all complaints |
-| POST | `/admin/complaint/{id}/assign` | ADMIN | Assign to self |
-| POST | `/admin/complaint/{id}/resolve` | ADMIN | Mark as resolved |
+- Register and login
+- Submit complaint with title, category, location, description, optional image
+- View own complaints with status tracking
+- Cancel pending complaints
+- View admin remarks on complaints
 
----
+### Admin/Officer
 
-## Setup & Run
+- View all complaints with search and filtering
+- Update complaint status with workflow rules
+- Add remarks to complaints
+- View status change history and audit trail
+- View all registered users
 
-### Prerequisites
-- Java 17+
-- MySQL 8+
-- Maven
+## Status Workflow
 
-### Steps
+PENDING → IN_PROGRESS or REJECTED
 
-```bash
-# 1. Clone the repo
-git clone https://github.com/Raghav-Sharma03/public-grievance-tracker.git
-cd public-grievance-tracker
+IN_PROGRESS → RESOLVED, REJECTED, or PENDING
 
-# 2. Create MySQL database
-CREATE DATABASE grievance_tracker;
+## API Routes
 
-# 3. Configure application.properties
-spring.datasource.url=jdbc:mysql://localhost:3306/grievance_tracker
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-spring.jpa.hibernate.ddl-auto=update
+### Public
 
-# 4. Run the app
-mvn spring-boot:run
+- `GET /login`
+- `POST /login`
+- `GET /register`
+- `POST /register`
+- `GET /actuator/health`
+
+### Citizen (`/citizen/**`)
+
+- `GET /citizen/dashboard`
+- `GET /citizen/submit-complaint`
+- `POST /citizen/submit-complaint`
+- `GET /citizen/complaint/{id}`
+- `POST /citizen/complaint/{id}/cancel`
+
+### Admin (`/admin/**`)
+
+- `GET /admin/dashboard`
+- `GET /admin/complaint/{id}`
+- `POST /admin/complaint/{id}/status`
+- `POST /admin/complaint/{id}/comment`
+- `GET /admin/users`
+
+## Environment Variables
+
+```env
+DATABASE_URL=jdbc:mysql://host:port/dbname?ssl-mode=REQUIRED&serverTimezone=UTC
+DB_USERNAME=
+DB_PASSWORD=
+ADMIN_EMAIL=
+ADMIN_PASSWORD=
+PORT=8080
+UPLOAD_DIR=uploads/complaints/
 ```
 
-App starts at `http://localhost:8080`
+## Local Development
 
----
+1. Clone the repository.
+2. Copy `.env.example` to `.env` and fill in the values.
+3. Start MySQL locally or use Aiven Cloud.
+4. Run `./mvnw spring-boot:run`.
 
-## Security Implementation
+## CI/CD Pipeline
 
-- Passwords hashed with **BCryptPasswordEncoder** — never stored in plain text
-- Session-based authentication managed by Spring Security
-- Role checks enforced at both **URL level** (HttpSecurity config) and **controller level** (`@PreAuthorize`)
-- CSRF protection enabled (Spring Security default)
-- Unauthorized access redirects to `/login`, not a 403 error page
+- `ci.yml`: Runs on every push and pull request — build, test, dependency check
+- `deploy-dev.yml`: Manual trigger — deploys to the development environment
+- `deploy-prod.yml`: Manual trigger with `CONFIRM` required — deploys to production
 
----
+## Deployment
 
-## What I Learned
+Deployed on Render using Docker.
 
-- How Spring Security's filter chain works under the hood
-- Designing role-based systems where access rules are enforced server-side, not just in the UI
-- Building a normalized relational schema that reflects real-world entity relationships
-- Integrating Thymeleaf with Spring MVC for clean server-side rendering with dynamic data
+Two environments: development and production.
 
----
-
-## Planned Enhancements
-
-- [ ] Email notifications on status change
-- [ ] Admin analytics dashboard (complaints by category, avg resolution time)
-- [ ] REST API layer for mobile client support
-- [ ] Pagination on admin complaint list
-
----
-
-## Author
-
-**Raghav Sharma**  
-[GitHub](https://github.com/Raghav-Sharma03) · [LinkedIn](https://linkedin.com/in/raghav-sharma-478191270)
+Database hosted on Aiven Cloud MySQL.
