@@ -101,17 +101,20 @@
     });
 
     function submitLogin() {
+        const loginButton = document.getElementById('loginButton');
+        loginButton.disabled = true;
+        loginButton.textContent = 'Please wait...';
+
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
 
         if (!email || !password) {
             document.getElementById('errorMsg').style.display = 'block';
             document.getElementById('errorMsg').textContent = 'Please fill all fields.';
+            loginButton.disabled = false;
+            loginButton.textContent = 'Login';
             return;
         }
-
-        const loginButton = document.getElementById('loginButton');
-        loginButton.disabled = true;
 
         const form = document.createElement('form');
         form.method = 'POST';

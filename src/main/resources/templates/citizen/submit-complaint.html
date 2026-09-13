@@ -81,7 +81,7 @@
                        accept="image/*">
             </div>
 
-            <button type="button" class="btn btn-primary w-100 py-2"
+            <button type="button" id="submitComplaintButton" class="btn btn-primary w-100 py-2"
                     onclick="submitComplaint()">
                 Submit Complaint
             </button>
@@ -91,6 +91,10 @@
 
 <script>
 function submitComplaint() {
+    const submitButton = document.getElementById('submitComplaintButton');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Please wait...';
+
     const title = document.getElementById('title').value.trim();
     const category = document.getElementById('category').value;
     const location = document.getElementById('location').value.trim();
@@ -99,6 +103,7 @@ function submitComplaint() {
 
     if (!title || !category || !location || !description) {
         showError('Please fill all required fields.');
+        resetSubmitButton();
         return;
     }
 
@@ -125,10 +130,18 @@ function submitComplaint() {
             window.location.href = '/citizen/dashboard?success=true';
         } else {
             showError('Something went wrong. Please try again.');
+            resetSubmitButton();
         }
     }).catch(() => {
         showError('Network error. Please try again.');
+        resetSubmitButton();
     });
+}
+
+function resetSubmitButton() {
+    const submitButton = document.getElementById('submitComplaintButton');
+    submitButton.disabled = false;
+    submitButton.textContent = 'Submit Complaint';
 }
 
 function showError(msg) {

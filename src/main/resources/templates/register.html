@@ -85,21 +85,26 @@
     });
 
     function submitRegister() {
+        const registerButton = document.getElementById('registerButton');
+        registerButton.disabled = true;
+        registerButton.textContent = 'Please wait...';
+
         const name = document.getElementById('name').value.trim();
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
 
         if (!name || !email || !password) {
             showError('Please fill all fields.');
+            registerButton.disabled = false;
+            registerButton.textContent = 'Create Account';
             return;
         }
         if (password.length < 8) {
             showError('Password must be at least 8 characters.');
+            registerButton.disabled = false;
+            registerButton.textContent = 'Create Account';
             return;
         }
-
-        const registerButton = document.getElementById('registerButton');
-        registerButton.disabled = true;
 
         const form = document.createElement('form');
         form.method = 'POST';

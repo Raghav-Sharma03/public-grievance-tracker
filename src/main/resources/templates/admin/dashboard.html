@@ -88,43 +88,45 @@
                  class="text-center py-5 text-muted">
                 No complaints submitted yet.
             </div>
-            <table th:if="${!#lists.isEmpty(complaints)}"
-                   class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Title</th>
-                        <th>Category</th>
-                        <th>Citizen</th>
-                        <th>Location</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="complaint : ${complaints}"
-                        class="complaint-row">
-                        <td th:text="${complaint.id}"></td>
-                        <td th:text="${complaint.title}"></td>
-                        <td th:text="${complaint.category}"></td>
-                        <td th:text="${complaint.citizen.name}"></td>
-                        <td th:text="${complaint.location}"></td>
-                        <td>
-                            <span class="badge rounded-pill px-2 py-1"
-                                  th:classappend="'badge-' + ${complaint.status.name()}"
-                                  th:text="${complaint.status}">
-                            </span>
-                        </td>
-                        <td th:text="${#temporals.format(complaint.createdAt,
-                                      'dd MMM yyyy')}"></td>
-                        <td>
-                            <a th:href="@{/admin/complaint/{id}(id=${complaint.id})}"
-                               class="btn btn-primary btn-sm">Manage</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table th:if="${!#lists.isEmpty(complaints)}"
+                       class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Citizen</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="complaint : ${complaints}"
+                            class="complaint-row">
+                            <td th:text="${complaint.id}"></td>
+                            <td th:text="${complaint.title}"></td>
+                            <td th:text="${complaint.category}"></td>
+                            <td th:text="${complaint.citizen.name}"></td>
+                            <td th:text="${complaint.location}"></td>
+                            <td>
+                                <span class="badge rounded-pill px-2 py-1"
+                                      th:classappend="'badge-' + ${complaint.status.name()}"
+                                      th:text="${complaint.status == T(com.grievance.grievance_tracker.model.ComplaintStatus).IN_PROGRESS} ? 'In Progress' : (${complaint.status == T(com.grievance.grievance_tracker.model.ComplaintStatus).PENDING} ? 'Pending' : (${complaint.status == T(com.grievance.grievance_tracker.model.ComplaintStatus).RESOLVED} ? 'Resolved' : 'Rejected'))">
+                                </span>
+                            </td>
+                            <td th:text="${#temporals.format(complaint.createdAt,
+                                          'dd MMM yyyy')}"></td>
+                            <td>
+                                <a th:href="@{/admin/complaint/{id}(id=${complaint.id})}"
+                                   class="btn btn-primary btn-sm">Manage</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Pagination Controls -->

@@ -90,6 +90,10 @@ public String dashboard(
     public String addComment(@PathVariable Long id,
                              @RequestParam("content") String content,
                              Authentication auth) {
+        if (content == null || content.isBlank() || content.length() > 1000) {
+            return "redirect:/admin/complaint/" + id + "?error=true";
+        }
+
         User admin = getLoggedInUser(auth);
         complaintService.addComment(id, content, admin);
         return "redirect:/admin/complaint/" + id + "?commented=true";
