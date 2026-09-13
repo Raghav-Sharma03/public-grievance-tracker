@@ -1,0 +1,20 @@
+name: Deploy to Dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for deployment'
+        required: true
+        default: 'Manual dev deployment'
+
+jobs:
+  deploy:
+    name: Deploy to Dev Environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Render Dev Deploy
+        run: |
+          curl -X POST "${{ secrets.RENDER_DEV_DEPLOY_HOOK }}"
+          echo "Dev deployment triggered successfully"
