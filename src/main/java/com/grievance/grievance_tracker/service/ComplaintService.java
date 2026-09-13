@@ -101,6 +101,22 @@ public Page<Complaint> getAllComplaints(int page) {
     public Complaint updateStatus(Long complaintId, ComplaintStatus newStatus) {
         Complaint complaint = complaintRepository.findById(complaintId)
                 .orElseThrow(() -> new NoSuchElementException("Complaint not found!"));
+
+        ComplaintStatus currentStatus = complaint.getStatus();
+        boolean isAllowedTransition =
+                (currentStatus == ComplaintStatus.PENDING
+                        && (newStatus == ComplaintStatus.IN_PROGRESS
+                                || newStatus == ComplaintStatus.REJECTED))
+                || (currentStatus == ComplaintStatus.IN_PROGRESS
+                        && (newStatus == ComplaintStatus.RESOLVED
+                                || newStatus == ComplaintStatus.REJECTED
+                                || newStatus == ComplaintStatus.PENDING));
+
+        if (!isAllowedTransition) {
+            throw new IllegalArgumentException(
+                    "Invalid status transition from " + currentStatus + " to " + newStatus);
+        }
+
         complaint.setStatus(newStatus);
         return complaintRepository.save(complaint);
     }

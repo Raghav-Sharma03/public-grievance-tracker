@@ -124,7 +124,7 @@
                                       th:classappend="${complaint.status.name() == 'PENDING'} ? 'badge-pending' :
                                                       (${complaint.status.name() == 'IN_PROGRESS'} ? 'badge-progress' :
                                                       (${complaint.status.name() == 'RESOLVED'} ? 'badge-resolved' : 'badge-rejected'))"
-                                      th:text="${complaint.status}">Status</span>
+                                      th:text="${complaint.status == T(com.grievance.grievance_tracker.model.ComplaintStatus).IN_PROGRESS} ? 'In Progress' : (${complaint.status == T(com.grievance.grievance_tracker.model.ComplaintStatus).PENDING} ? 'Pending' : (${complaint.status == T(com.grievance.grievance_tracker.model.ComplaintStatus).RESOLVED} ? 'Resolved' : 'Rejected'))">Status</span>
                                 <br>
                                 <small class="text-muted mt-1 d-block"
                                        th:text="${#temporals.format(complaint.createdAt, 'dd MMM yyyy')}">

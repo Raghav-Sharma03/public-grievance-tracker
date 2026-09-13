@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="_csrf" th:content="${_csrf.token}">
     <meta name="_csrf_parameter" th:content="${_csrf.parameterName}">
     <title>Manage Complaint - Admin</title>
@@ -47,6 +48,8 @@
          class="alert alert-success">Status updated successfully!</div>
     <div th:if="${param.commented}"
          class="alert alert-success">Remark added successfully!</div>
+    <div th:if="${param.error}"
+         class="alert alert-danger">Remark must be between 1 and 1000 characters.</div>
 
     <!-- Complaint Details -->
     <div class="card detail-card mb-4">
@@ -101,19 +104,19 @@
         <div class="card-body p-4">
             <h5 class="mb-3">Update Status</h5>
             <div class="d-flex gap-2 flex-wrap">
-                <button onclick="updateStatus('PENDING')"
+                <button onclick="updateStatus('PENDING', this)"
                         class="btn btn-warning text-white">
                     Mark Pending
                 </button>
-                <button onclick="updateStatus('IN_PROGRESS')"
+                <button onclick="updateStatus('IN_PROGRESS', this)"
                         class="btn btn-info text-white">
                     Mark In Progress
                 </button>
-                <button onclick="updateStatus('RESOLVED')"
+                <button onclick="updateStatus('RESOLVED', this)"
                         class="btn btn-success">
                     Mark Resolved
                 </button>
-                <button onclick="updateStatus('REJECTED')"
+                <button onclick="updateStatus('REJECTED', this)"
                         class="btn btn-danger">
                     Mark Rejected
                 </button>
@@ -125,11 +128,14 @@
     <div class="card detail-card mb-4">
         <div class="card-body p-4">
             <h5 class="mb-3">Add Remark</h5>
-            <textarea id="remarkText" class="form-control mb-3"
+            <textarea id="remarkText" class="form-control"
                       rows="3"
-                      placeholder="Write your remark or update for the citizen...">
-            </textarea>
-            <button onclick="submitRemark()"
+                      maxlength="1000"
+                      placeholder="Write your remark or update for the citizen..."></textarea>
+            <div class="text-end text-muted small mb-3">
+                <span id="remarkCharCount">0</span>/1000 characters
+            </div>
+            <button onclick="submitRemark(this)"
                     class="btn btn-primary">Add Remark</button>
         </div>
     </div>
@@ -157,6 +163,12 @@
 
 <script>
     const complaintId = document.getElementById('complaintIdHolder').value;
+    const remarkText = document.getElementById('remarkText');
+    const remarkCharCount = document.getElementById('remarkCharCount');
+
+    remarkText.addEventListener('input', function() {
+        remarkCharCount.textContent = remarkText.value.length;
+    });
 
     function addCsrfToken(form) {
         const csrfInput = document.createElement('input');
@@ -166,7 +178,10 @@
         form.appendChild(csrfInput);
     }
 
-    function updateStatus(status) {
+    function updateStatus(status, button) {
+        button.disabled = true;
+        button.textContent = 'Please wait...';
+
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '/admin/complaint/' + complaintId + '/status';
@@ -182,10 +197,15 @@
         form.submit();
     }
 
-    function submitRemark() {
-        const content = document.getElementById('remarkText').value.trim();
-        if (!content) {
-            alert('Please write a remark first.');
+    function submitRemark(button) {
+        button.disabled = true;
+        button.textContent = 'Please wait...';
+
+        const content = remarkText.value.trim();
+        if (!content || content.length > 1000) {
+            alert('Remark must be between 1 and 1000 characters.');
+            button.disabled = false;
+            button.textContent = 'Add Remark';
             return;
         }
 

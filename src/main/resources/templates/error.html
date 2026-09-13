@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,9 +39,16 @@
         <div class="error-code" th:text="${errorCode} ?: '500'"></div>
         <h4 class="mt-2 mb-3">Oops, something went wrong</h4>
         <p class="text-muted" th:text="${errorMessage} ?: 'An unexpected error occurred.'"></p>
-        <a href="/citizen/dashboard" class="btn btn-primary mt-3">
-            Go to Dashboard
-        </a>
+        <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
+            <a sec:authorize="hasAnyRole('ADMIN', 'OFFICER')"
+               href="/admin/dashboard" class="btn btn-primary">Go to Dashboard</a>
+            <a sec:authorize="hasRole('CITIZEN')"
+               href="/citizen/dashboard" class="btn btn-primary">Go to Dashboard</a>
+            <a sec:authorize="isAnonymous()"
+               href="/login" class="btn btn-primary">Go to Login</a>
+            <button type="button" class="btn btn-outline-secondary"
+                    onclick="history.back()">Go Back</button>
+        </div>
     </div>
 </div>
 
