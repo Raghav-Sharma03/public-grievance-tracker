@@ -1,7 +1,7 @@
 package com.grievance.grievance_tracker.repository;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,20 +10,20 @@ import com.grievance.grievance_tracker.model.ComplaintStatus;
 import com.grievance.grievance_tracker.model.User;
 
 @Repository
-public interface ComplaintRepository extends JpaRepository<Complaint, Long>{
+public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
 
-    //SELECT * FROM complaints WHERE user_id = ?
-    List<Complaint> findByCitizen(User citizen);
+    // Count complaints by citizen and status
+    long countByCitizenAndStatus(User citizen, ComplaintStatus status);
 
-    //SELECT * FROM complaints WHERE status = ?
-    List<Complaint> findByStatus(String status);
+    // Paginated complaints by citizen
+    Page<Complaint> findByCitizen(User citizen, Pageable pageable);
 
-    //SELECT * FROM complaints WHERE user_id = ? AND status = ?
-    List<Complaint> findByCitizenAndStatus(User citizen, ComplaintStatus status);
+    // Paginated all complaints for admin
+    Page<Complaint> findAll(Pageable pageable);
 
-    // Count how many complaints a citizen has submitted
-    long countByCitizen(User citizen);
-
-    // Count complaints by status (for admin dashboard stats)
+    // Count complaints by status
     long countByStatus(ComplaintStatus status);
+
+    // Count by citizen
+    long countByCitizen(User citizen);
 }
