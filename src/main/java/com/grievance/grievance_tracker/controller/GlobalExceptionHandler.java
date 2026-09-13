@@ -1,5 +1,7 @@
 package com.grievance.grievance_tracker.controller;
 
+import java.util.NoSuchElementException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,13 +15,23 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // 404 - Resource not found
+    // 500 - Unexpected runtime errors
     @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleRuntimeException(RuntimeException ex, Model model) {
+        log.error("Unexpected runtime error occurred: {}", ex.getMessage());
+        model.addAttribute("errorCode", "500");
+        model.addAttribute("errorMessage", "Something went wrong. Please try again later.");
+        return "error";
+    }
+
+    // 404 - Resource not found
+    @ExceptionHandler(NoSuchElementException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleNotFound(RuntimeException ex, Model model) {
+    public String handleNotFound(NoSuchElementException ex, Model model) {
         log.warn("Resource not found: {}", ex.getMessage());
         model.addAttribute("errorCode", "404");
-        model.addAttribute("errorMessage", "The page or resource you requested was not found.");
+        model.addAttribute("errorMessage", "The requested resource was not found.");
         return "error";
     }
 

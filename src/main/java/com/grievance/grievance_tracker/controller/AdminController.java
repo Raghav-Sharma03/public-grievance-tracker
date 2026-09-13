@@ -1,6 +1,7 @@
 package com.grievance.grievance_tracker.controller;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,7 @@ public String dashboard(
                                 Authentication auth,
                                 Model model) {
         Complaint complaint = complaintService.getComplaintById(id)
-                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+                .orElseThrow(() -> new NoSuchElementException("Complaint not found"));
 
         List<Comment> comments = complaintService.getCommentsByComplaint(id);
 

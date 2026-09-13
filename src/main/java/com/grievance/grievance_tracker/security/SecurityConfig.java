@@ -35,11 +35,18 @@ public class SecurityConfig {
         http
             .csrf(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register", "/login", "/css/**", "/js/**", "/images/**", "/error")
+                .requestMatchers("/register", "/login", "/css/**", "/js/**", "/images/**",
+                    "/uploads/**", "/error", "/error/403")
                     .permitAll()
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "OFFICER")
                 .requestMatchers("/citizen/**").hasRole("CITIZEN")
                 .anyRequest().authenticated()
+            )
+            .exceptionHandling(exceptions -> exceptions
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(403);
+                    request.getRequestDispatcher("/error/403").forward(request, response);
+                })
             )
             .formLogin(form -> form
                 .loginPage("/login")

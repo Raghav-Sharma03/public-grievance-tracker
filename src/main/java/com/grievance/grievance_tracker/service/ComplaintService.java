@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -99,7 +100,7 @@ public Page<Complaint> getAllComplaints(int page) {
      // Update complaint status (admin/officer action)
     public Complaint updateStatus(Long complaintId, ComplaintStatus newStatus) {
         Complaint complaint = complaintRepository.findById(complaintId)
-                .orElseThrow(() -> new RuntimeException("Complaint not found!"));
+                .orElseThrow(() -> new NoSuchElementException("Complaint not found!"));
         complaint.setStatus(newStatus);
         return complaintRepository.save(complaint);
     }
@@ -107,7 +108,7 @@ public Page<Complaint> getAllComplaints(int page) {
     // Add a comment/remark to a complaint
     public Comment addComment(Long complaintId, String content, User author) {
         Complaint complaint = complaintRepository.findById(complaintId)
-                .orElseThrow(() -> new RuntimeException("Complaint not found!"));
+                .orElseThrow(() -> new NoSuchElementException("Complaint not found!"));
 
         Comment comment = new Comment();
         comment.setContent(content);
@@ -120,7 +121,7 @@ public Page<Complaint> getAllComplaints(int page) {
     // Get all comments for a complaint
     public List<Comment> getCommentsByComplaint(Long complaintId) {
         Complaint complaint = complaintRepository.findById(complaintId)
-                .orElseThrow(() -> new RuntimeException("Complaint not found!"));
+                .orElseThrow(() -> new NoSuchElementException("Complaint not found!"));
         return commentRepository.findByComplaintOrderByCreatedAtDesc(complaint);
     }
 
