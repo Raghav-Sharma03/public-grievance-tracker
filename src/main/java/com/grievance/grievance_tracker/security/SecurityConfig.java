@@ -36,7 +36,7 @@ public class SecurityConfig {
             .csrf(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/register", "/login", "/css/**", "/js/**", "/images/**",
-                    "/uploads/**", "/error", "/error/403")
+                    "/uploads/**", "/favicon.svg", "/error", "/error/403")
                     .permitAll()
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "OFFICER")
                 .requestMatchers("/citizen/**").hasRole("CITIZEN")
