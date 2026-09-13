@@ -2,6 +2,7 @@ package com.grievance.grievance_tracker.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -35,20 +36,27 @@ public class AdminController {
     }
 
     // Admin Dashboard
-    @GetMapping("/dashboard")
-    public String dashboard(Authentication auth, Model model) {
-        User admin = getLoggedInUser(auth);
-        List<Complaint> complaints = complaintService.getAllComplaints();
+@GetMapping("/dashboard")
+public String dashboard(
+        @RequestParam(defaultValue = "0") int page,
+        Authentication auth,
+        Model model) {
+    User admin = getLoggedInUser(auth);
+    Page<Complaint> complaintPage = complaintService.getAllComplaints(page);
 
-        model.addAttribute("admin", admin);
-        model.addAttribute("complaints", complaints);
-        model.addAttribute("total", complaintService.getTotalComplaints());
-        model.addAttribute("pending", complaintService.getPendingCount());
-        model.addAttribute("inProgress", complaintService.getInProgressCount());
-        model.addAttribute("resolved", complaintService.getResolvedCount());
+    model.addAttribute("admin", admin);
+    model.addAttribute("complaints", complaintPage.getContent());
+    model.addAttribute("currentPage", page);
+    model.addAttribute("totalPages", complaintPage.getTotalPages());
+    model.addAttribute("hasNext", complaintPage.hasNext());
+    model.addAttribute("hasPrevious", complaintPage.hasPrevious());
+    model.addAttribute("total", complaintService.getTotalComplaints());
+    model.addAttribute("pending", complaintService.getPendingCount());
+    model.addAttribute("inProgress", complaintService.getInProgressCount());
+    model.addAttribute("resolved", complaintService.getResolvedCount());
 
-        return "admin/dashboard";
-    }
+    return "admin/dashboard";
+}
 
     // View single complaint + add remarks
     @GetMapping("/complaint/{id}")

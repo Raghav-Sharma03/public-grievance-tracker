@@ -3,6 +3,7 @@ package com.grievance.grievance_tracker.controller;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,28 +46,27 @@ public class CitizenController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    @GetMapping("/dashboard")
-    public String dashboard(Authentication auth, Model model) {
-        User citizen = getLoggedInUser(auth);
-        List<Complaint> complaints = complaintService.getComplaintsByCitizen(citizen);
+@GetMapping("/dashboard")
+public String dashboard(
+        @RequestParam(defaultValue = "0") int page,
+        Authentication auth,
+        Model model) {
+    User citizen = getLoggedInUser(auth);
+    Page<Complaint> complaintPage = complaintService.getComplaintsByCitizen(citizen, page);
 
-        long total = complaints.size();
-        long pending = complaints.stream()
-                .filter(c -> c.getStatus() == ComplaintStatus.PENDING).count();
-        long inProgress = complaints.stream()
-                .filter(c -> c.getStatus() == ComplaintStatus.IN_PROGRESS).count();
-        long resolved = complaints.stream()
-                .filter(c -> c.getStatus() == ComplaintStatus.RESOLVED).count();
+    model.addAttribute("citizen", citizen);
+    model.addAttribute("complaints", complaintPage.getContent());
+    model.addAttribute("currentPage", page);
+    model.addAttribute("totalPages", complaintPage.getTotalPages());
+    model.addAttribute("hasNext", complaintPage.hasNext());
+    model.addAttribute("hasPrevious", complaintPage.hasPrevious());
+    model.addAttribute("total", complaintService.getCitizenComplaintCount(citizen));
+    model.addAttribute("pending", complaintService.getCitizenStatusCount(citizen, ComplaintStatus.PENDING));
+    model.addAttribute("inProgress", complaintService.getCitizenStatusCount(citizen, ComplaintStatus.IN_PROGRESS));
+    model.addAttribute("resolved", complaintService.getCitizenStatusCount(citizen, ComplaintStatus.RESOLVED));
 
-        model.addAttribute("citizen", citizen);
-        model.addAttribute("complaints", complaints);
-        model.addAttribute("total", total);
-        model.addAttribute("pending", pending);
-        model.addAttribute("inProgress", inProgress);
-        model.addAttribute("resolved", resolved);
-
-        return "citizen/dashboard";
-    }
+    return "citizen/dashboard";
+}
 
     @GetMapping("/submit-complaint")
     public String submitComplaintPage(Model model) {

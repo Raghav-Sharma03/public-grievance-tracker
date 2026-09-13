@@ -10,6 +10,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -77,15 +81,17 @@ public class ComplaintService {
         return uploadDir + fileName;
     }
 
-    // Get all complaints by a citizen (for citizen dashboard)
-    public List<Complaint> getComplaintsByCitizen(User citizen) {
-        return complaintRepository.findByCitizen(citizen);
-    }
+// Get paginated complaints by citizen
+public Page<Complaint> getComplaintsByCitizen(User citizen, int page) {
+    Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+    return complaintRepository.findByCitizen(citizen, pageable);
+}
 
-    // Get all complaints (for admin dashboard)
-    public List<Complaint> getAllComplaints() {
-        return complaintRepository.findAll();
-    }
+// Get paginated all complaints for admin
+public Page<Complaint> getAllComplaints(int page) {
+    Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+    return complaintRepository.findAll(pageable);
+}
     // Get a single complaint by ID
     public Optional<Complaint> getComplaintById(Long id) {
         return complaintRepository.findById(id);
@@ -134,5 +140,14 @@ public class ComplaintService {
     public long getInProgressCount() {
         return complaintRepository.countByStatus(ComplaintStatus.IN_PROGRESS);
     }
+    // Count all complaints for a citizen
+public long getCitizenComplaintCount(User citizen) {
+    return complaintRepository.countByCitizen(citizen);
+}
+
+// Count complaints for a citizen by status
+public long getCitizenStatusCount(User citizen, ComplaintStatus status) {
+    return complaintRepository.countByCitizenAndStatus(citizen, status);
+}
 
 }
